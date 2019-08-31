@@ -8,9 +8,10 @@ K = int(sys.argv[1])
 D = int(sys.argv[2])
 N = int(sys.argv[3])
 path = sys.argv[4]
+path = sys.argv[4] #"./mnist"
 
-image_data = np.reshape(np.fromfile('train-images-idx3-ubyte', dtype=np.ubyte, count=784000, sep='', offset=16), (1000, 784))
-label_data = np.fromfile('train-labels-idx1-ubyte', dtype=np.ubyte, count=1000, sep='', offset=8)
+image_data = np.reshape(np.fromfile(path+'/train-images-idx3-ubyte', dtype=np.ubyte, count=784000, sep='', offset=16), (1000, 784))
+label_data = np.fromfile(path + '/train-labels-idx1-ubyte', dtype=np.ubyte, count=1000, sep='', offset=8)
 tr_data = image_data[N:, :]
 va_data = image_data[:N, :]
 tr_labels = label_data[N:]
@@ -30,11 +31,11 @@ def calcDistance(data1, data2):
 def knn(data):
 	#get all distances
 	distances = []
-	d = {} #distance, index
+	d_index = {} #distance, index
 	sort = {}
 	for x in range(len(tr_data)):
 		distances.append(calcDistance(data, tr_data[x]))
-		d[distances[x]] = x
+		d_index[distances[x]] = x
 	distances.sort()
 
 	#find k nearest neighbors
@@ -45,11 +46,15 @@ def knn(data):
 	#count votes
 	digits = [0,0,0,0,0,0,0,0,0,0]
 	for x in neighbors:
-		index = d.get(x)
+		index = d_index.get(x)
 		prediction = tr_labels[index]
-		digits[prediction] += 1
+		digits[prediction] += 1/x
 
 	return digits.index(max(digits))
 
+f=open("3924266336.txt","w+")
 for i in range(N):
-	print(str(knn(va_data[i])) + " " + str(va_labels[i]))
+	f.write(str(knn(va_data[i])) + " " + str(va_labels[i]))
+	f.write("\n")
+
+f.close()
